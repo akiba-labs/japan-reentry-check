@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Calculator } from "@/components/calculator";
 import { FaqSection, type FaqItem } from "@/components/faq-section";
+import { TripPartners } from "@/components/trip-partners";
 import { SOURCES } from "@/lib/reentry";
 import { EXAMPLE_PR, EXAMPLE_SHARED, PUBLIC_URL, resultPath } from "@/lib/share";
 
@@ -156,6 +157,8 @@ export default function HomePage() {
       </section>
 
       <FaqSection items={faq} heading="Re-entry questions" />
+
+      <TripPartners />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(webAppLd).replace(/</g, "\\u003c") }} />
     </div>
   );
