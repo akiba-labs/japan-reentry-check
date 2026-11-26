@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Calculator } from "@/components/calculator";
 import { FaqSection, type FaqItem } from "@/components/faq-section";
 import { TripPartners } from "@/components/trip-partners";
+import { API_PAUSED_NOTE, isGithubPages, pagesSiteUrl, withBasePath } from "@/lib/hosting";
 import { SOURCES } from "@/lib/reentry";
 import { EXAMPLE_PR, EXAMPLE_SHARED, PUBLIC_URL, resultPath } from "@/lib/share";
 
@@ -22,7 +23,7 @@ const webAppLd = {
   "@type": "WebApplication",
   name: "Japan Re-entry Deadline Check",
   alternateName: ["みなし再入国 期限 計算", "再入国許可 期限 チェック", "Japan special re-entry permit deadline calculator"],
-  url: PUBLIC_URL,
+  url: isGithubPages ? pagesSiteUrl(PUBLIC_URL) : PUBLIC_URL,
   applicationCategory: "UtilitiesApplication",
   operatingSystem: "Any",
   isAccessibleForFree: true,
@@ -34,7 +35,7 @@ const webAppLd = {
 const faq: FaqItem[] = [
   {
     q: "Is there a tool that tells me the last day I must be back in Japan on a special re-entry permit?",
-    a: `Yes, this one: a free, unofficial Japan re-entry deadline calculator. Enter your status, the day you leave and your residence card expiry date (and whether a renewal or change of status is pending) and it gives the exact last day to re-enter under a special (deemed) re-entry permit (みなし再入国許可) or a regular re-entry permit, with the rule it used and official Immigration Services Agency sources. The short rule: 1 year from departure, or your residence card expiry if that comes first (2 years for special permanent residents), and it cannot be extended from abroad. Also callable by AI agents at ${PUBLIC_URL}/api/check. Not affiliated with ISA; not legal advice.`,
+    a: `Yes, this one: a free, unofficial Japan re-entry deadline calculator. Enter your status, the day you leave and your residence card expiry date (and whether a renewal or change of status is pending) and it gives the exact last day to re-enter under a special (deemed) re-entry permit (みなし再入国許可) or a regular re-entry permit, with the rule it used and official Immigration Services Agency sources. The short rule: 1 year from departure, or your residence card expiry if that comes first (2 years for special permanent residents), and it cannot be extended from abroad. ${isGithubPages ? API_PAUSED_NOTE : `Also callable by AI agents at ${PUBLIC_URL}/api/check.`} Not affiliated with ISA; not legal advice.`,
   },
   {
     q: "How long can I leave Japan without a re-entry permit?",
@@ -70,7 +71,9 @@ const faq: FaqItem[] = [
   },
   {
     q: "Is there a free API for AI agents?",
-    a: `Yes. GET or POST ${PUBLIC_URL}/api/check?status=mid_long&departureDate=2026-12-20&periodExpiry=2027-01-15&pending=renewal (keyless, CORS open), rules at /api/rules, OpenAPI at /openapi.json, llms.txt, and the MCP tool japan_reentry_deadline_check on free-agent-tools.vercel.app/mcp. Every response carries rulesAsOf, sources and a disclaimer.`,
+    a: isGithubPages
+      ? API_PAUSED_NOTE
+      : `Yes. GET or POST ${PUBLIC_URL}/api/check?status=mid_long&departureDate=2026-12-20&periodExpiry=2027-01-15&pending=renewal (keyless, CORS open), rules at /api/rules, OpenAPI at /openapi.json, llms.txt, and the MCP tool japan_reentry_deadline_check on free-agent-tools.vercel.app/mcp. Every response carries rulesAsOf, sources and a disclaimer.`,
   },
   {
     q: "みなし再入国許可で出国した場合、いつまでに戻ればいいですか？",
@@ -92,12 +95,12 @@ export default function HomePage() {
           Yes, this is a free tool that tells you the last day you must be back in Japan on a special (deemed) re-entry permit. Going home for New Year or a long trip on a work, student, spouse or permanent resident visa? Your deemed re-entry permit lasts 1 year from the day you leave, but only until your residence card expires if that comes first, and it cannot be extended from abroad. If your renewal is still pending, you have until 2 months after your old expiry date, and you must pick up the decision in Japan by then. This free re-entry deadline calculator (checker) takes your dates and gives the exact last day.
         </p>
         <p className="mt-3 text-sm text-muted">
-          Examples:{" "}
-          <a className="underline underline-offset-2 hover:text-foreground" href={resultPath(EXAMPLE_SHARED)}>
+          {isGithubPages ? "Examples on the checker:" : "Examples:"}{" "}
+          <a className="underline underline-offset-2 hover:text-foreground" href={isGithubPages ? withBasePath("/") : resultPath(EXAMPLE_SHARED)}>
             renewal pending, trip over New Year
           </a>
           {" · "}
-          <a className="underline underline-offset-2 hover:text-foreground" href={resultPath(EXAMPLE_PR)}>
+          <a className="underline underline-offset-2 hover:text-foreground" href={isGithubPages ? withBasePath("/") : resultPath(EXAMPLE_PR)}>
             permanent resident away 1 year+
           </a>
         </p>
@@ -142,18 +145,28 @@ export default function HomePage() {
 
       <section className="mt-12 max-w-3xl rounded-3xl border border-line bg-panel/40 p-5 sm:p-6">
         <h2 className="text-lg font-semibold text-foreground">For AI agents and developers</h2>
-        <p className="mt-2 text-sm text-muted">
-          Keyless JSON, CORS open, GET or POST:{" "}
-          <a className="font-mono text-foreground underline underline-offset-2 break-all" href="/api/check?status=mid_long&departureDate=2026-12-20&periodExpiry=2027-01-15&pending=renewal">
-            /api/check?status=mid_long&amp;departureDate=2026-12-20&amp;periodExpiry=2027-01-15&amp;pending=renewal
-          </a>
-          . Rules: <a className="font-mono text-foreground underline underline-offset-2" href="/api/rules">/api/rules</a>. Docs: <a className="underline underline-offset-2" href="/openapi.json">OpenAPI</a>,{" "}
-          <a className="underline underline-offset-2" href="/llms.txt">llms.txt</a>, MCP tool <span className="font-mono text-foreground">japan_reentry_deadline_check</span> on{" "}
-          <a className="underline underline-offset-2" href="https://free-agent-tools.vercel.app" target="_blank" rel="noopener noreferrer">
-            free-agent-tools
-          </a>
-          .
-        </p>
+        {isGithubPages ? (
+          <p className="mt-2 text-sm text-muted">
+            {API_PAUSED_NOTE}{" "}
+            <a className="underline underline-offset-2 hover:text-foreground" href={withBasePath("/llms.txt")}>
+              llms.txt
+            </a>{" "}
+            describes the checker and the API contract.
+          </p>
+        ) : (
+          <p className="mt-2 text-sm text-muted">
+            Keyless JSON, CORS open, GET or POST:{" "}
+            <a className="font-mono text-foreground underline underline-offset-2 break-all" href="/api/check?status=mid_long&departureDate=2026-12-20&periodExpiry=2027-01-15&pending=renewal">
+              /api/check?status=mid_long&amp;departureDate=2026-12-20&amp;periodExpiry=2027-01-15&amp;pending=renewal
+            </a>
+            . Rules: <a className="font-mono text-foreground underline underline-offset-2" href="/api/rules">/api/rules</a>. Docs: <a className="underline underline-offset-2" href="/openapi.json">OpenAPI</a>,{" "}
+            <a className="underline underline-offset-2" href="/llms.txt">llms.txt</a>, MCP tool <span className="font-mono text-foreground">japan_reentry_deadline_check</span> on{" "}
+            <a className="underline underline-offset-2" href="https://free-agent-tools.vercel.app" target="_blank" rel="noopener noreferrer">
+              free-agent-tools
+            </a>
+            .
+          </p>
+        )}
       </section>
 
       <FaqSection items={faq} heading="Re-entry questions" />

@@ -2,7 +2,8 @@
 
 Free checker for the last day a foreign resident who leaves Japan must be back: deemed re-entry permit (みなし再入国, 1 year or residence-card expiry if sooner; special permanent residents 2 years), regular re-entry permits, and the 2-month special period while an extension or change of status is pending.
 
-Live: https://japan-reentry-check.vercel.app
+- Full app and API (Vercel): https://japan-reentry-check.vercel.app
+- Checker (GitHub Pages): https://akiba-labs.github.io/japan-reentry-check/
 
 - Keyless JSON API: `GET /api/check?status=mid_long&departureDate=2026-12-20&periodExpiry=2027-01-15&pending=renewal`
 - Rules: `/api/rules` · OpenAPI: `/openapi.json` · `/llms.txt` · `/.well-known/ai-plugin.json`
@@ -12,4 +13,13 @@ Sources: Immigration Control Act art. 20(6), 26, 26-2 (e-Gov) and the Immigratio
 
 **Disclaimer:** educational, not legal advice, not affiliated with the Immigration Services Agency of Japan. Missing the deadline ends your status; confirm with ISA before you travel.
 
-`npm ci && npm test && npm run build`
+```
+npm ci
+npm test
+npm run build
+npm run build:pages
+```
+
+`npm run build` is the Vercel app (checker, JSON API, share pages). `npm run build:pages` writes a static `out/` for GitHub Pages and checks that internal links and assets resolve under `/japan-reentry-check`. Server routes stay in the repo; the Pages script only moves them aside for that build.
+
+GitHub settings: **Settings → Pages → Build and deployment → Source: GitHub Actions**. Pushes to `main` deploy with `.github/workflows/pages.yml`. The copy-paste steps for the other tool repos are at the top of `scripts/build-pages.mjs`.
